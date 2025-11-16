@@ -1,0 +1,353 @@
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # Database Services
+  # ===========================================================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: NexusAIPlatform-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-NexusAIPlatform}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-NexusAIPlatform_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-NexusAIPlatform}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+      # Performance tuning
+      POSTGRES_SHARED_BUFFERS: "256MB"
+      POSTGRES_EFFECTIVE_CACHE_SIZE: "1GB"
+      POSTGRES_MAINTENANCE_WORK_MEM: "128MB"
+      POSTGRES_CHECKPOINT_COMPLETION_TARGET: "0.9"
+      POSTGRES_WAL_BUFFERS: "16MB"
+      POSTGRES_DEFAULT_STATISTICS_TARGET: "100"
+      POSTGRES_RANDOM_PAGE_COST: "1.1"
+      POSTGRES_EFFECTIVE_IO_CONCURRENCY: "200"
+      POSTGRES_WORK_MEM: "16MB"
+      POSTGRES_MIN_WAL_SIZE: "1GB"
+      POSTGRES_MAX_WAL_SIZE: "4GB"
+      POSTGRES_MAX_CONNECTIONS: "200"
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=128MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=16MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+      -c max_connections=200
+      -c max_worker_processes=8
+      -c max_parallel_workers_per_gather=4
+      -c max_parallel_workers=8
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-NexusAIPlatform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+    shm_size: 256mb
+
+  redis:
+    image: redis:7-alpine
+    container_name: NexusAIPlatform-redis
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-redis_secret}
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --tcp-backlog 511
+      --timeout 0
+      --tcp-keepalive 300
+      --databases 16
+      --io-threads 4
+      --io-threads-do-reads yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+
+  # ===========================================================================
+  # Object Storage
+  # ===========================================================================
+  
+  minio:
+    image: minio/minio:latest
+    container_name: NexusAIPlatform-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin_secret}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+
+  # ===========================================================================
+  # MLflow Tracking Server
+  # ===========================================================================
+  
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.8.1
+    container_name: NexusAIPlatform-mlflow
+    command: >
+      mlflow server
+      --backend-store-uri postgresql://${POSTGRES_USER:-NexusAIPlatform}:${POSTGRES_PASSWORD:-NexusAIPlatform_secret}@postgres:5432/mlflow
+      --default-artifact-root s3://mlflow/
+      --host 0.0.0.0
+      --port 5000
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_ACCESS_KEY:-minioadmin}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_SECRET_KEY:-minioadmin_secret}
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+
+  # ===========================================================================
+  # Backend API
+  # ===========================================================================
+  
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: NexusAIPlatform-backend
+    command: uvicorn backend.api.main:app --host 0.0.0.0 --port 8000 --workers 4 --timeout-keep-alive 75 --limit-concurrency 1000 --backlog 2048
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DEBUG: ${DEBUG:-true}
+      SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_production}
+      
+      # Database
+      POSTGRES_USER: ${POSTGRES_USER:-NexusAIPlatform}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-NexusAIPlatform_secret}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-NexusAIPlatform}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_secret}
+      
+      # MinIO
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin_secret}
+      
+      # MLflow
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      
+      # Inference
+      INFERENCE_DEVICE: ${INFERENCE_DEVICE:-cpu}
+      USE_ONNX: ${USE_ONNX:-true}
+    volumes:
+      - ./src:/app/src
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+    shm_size: 2gb
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ===========================================================================
+  # Celery Worker (Async Tasks)
+  # ===========================================================================
+  
+  celery-worker:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.backend
+    container_name: NexusAIPlatform-celery-worker
+    command: celery -A src.workers.celery_app worker --loglevel=warning --concurrency=8 --prefetch-multiplier=4 --max-tasks-per-child=100
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      
+      # Database
+      POSTGRES_USER: ${POSTGRES_USER:-NexusAIPlatform}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-NexusAIPlatform_secret}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-NexusAIPlatform}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_secret}
+      
+      # MinIO
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin_secret}
+      
+      # MLflow
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      
+      # Inference
+      INFERENCE_DEVICE: ${INFERENCE_DEVICE:-cpu}
+    volumes:
+      - ./src:/app/src
+      - ./models:/app/models
+      - ./data:/app/data
+    depends_on:
+      - redis
+      - postgres
+      - minio
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+    shm_size: 4gb
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 16G
+        reservations:
+          cpus: '4'
+          memory: 8G
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ===========================================================================
+  # Frontend (React)
+  # ===========================================================================
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+    container_name: NexusAIPlatform-frontend
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+
+  # ===========================================================================
+  # Monitoring Services
+  # ===========================================================================
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: NexusAIPlatform-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    volumes:
+      - ./infra/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: NexusAIPlatform-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+    volumes:
+      - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./infra/monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - NexusAIPlatform-network
+    restart: unless-stopped
+
+# ===========================================================================
+# Networks
+# ===========================================================================
+
+networks:
+  NexusAIPlatform-network:
+    driver: bridge
+
+# ===========================================================================
+# Volumes
+# ===========================================================================
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:

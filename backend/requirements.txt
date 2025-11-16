@@ -1,0 +1,174 @@
+# NexusAI Platform - Backend Requirements
+# Production-ready dependencies for AI inference platform
+
+# ================================
+# Core Framework
+# ================================
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# ================================
+# Database & ORM
+# ================================
+sqlalchemy[asyncio]==2.0.23
+asyncpg==0.29.0
+alembic==1.12.1
+psycopg2-binary==2.9.9
+
+# ================================
+# Redis & Caching
+# ================================
+redis==5.0.1
+hiredis==2.2.3
+aioredis==2.0.1
+
+# ================================
+# Storage (MinIO/S3)
+# ================================
+minio==7.2.0
+boto3==1.29.7
+aioboto3==12.0.0
+
+# ================================
+# Task Queue
+# ================================
+celery==5.3.4
+flower==2.0.1
+kombu==5.3.4
+
+# ================================
+# Computer Vision & ML
+# ================================
+torch==2.1.1
+torchvision==0.16.1
+onnxruntime-gpu==1.16.3
+onnx==1.15.0
+opencv-python-headless==4.8.1.78
+opencv-contrib-python-headless==4.8.1.78
+Pillow==10.1.0
+numpy==1.24.4
+scipy==1.11.4
+
+# YOLO Models
+ultralytics==8.0.220
+
+# Segment Anything
+segment-anything==1.0
+
+# Additional CV libraries
+albumentations==1.3.1
+scikit-image==0.22.0
+imgaug==0.4.0
+
+# ================================
+# MLOps
+# ================================
+mlflow==2.8.1
+optuna==3.4.0
+tensorboard==2.15.1
+
+# ================================
+# Authentication & Security
+# ================================
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+bcrypt==4.1.1
+cryptography==41.0.7
+
+# ================================
+# Monitoring & Logging
+# ================================
+prometheus-client==0.19.0
+prometheus-fastapi-instrumentator==6.1.0
+python-json-logger==2.0.7
+structlog==23.2.0
+loguru==0.7.2
+
+# ================================
+# Tracing
+# ================================
+opentelemetry-api==1.21.0
+opentelemetry-sdk==1.21.0
+opentelemetry-instrumentation-fastapi==0.42b0
+jaeger-client==4.8.0
+
+# ================================
+# Rate Limiting
+# ================================
+slowapi==0.1.9
+limits==3.7.0
+
+# ================================
+# Utilities
+# ================================
+python-dotenv==1.0.0
+pyyaml==6.0.1
+click==8.1.7
+tqdm==4.66.1
+httpx==0.25.2
+aiofiles==23.2.1
+ujson==5.8.0
+orjson==3.9.10
+
+# ================================
+# Video Processing
+# ================================
+av==11.0.0
+imageio==2.33.0
+imageio-ffmpeg==0.4.9
+moviepy==1.0.3
+
+# ================================
+# Camera/Streaming
+# ================================
+aiortc==1.6.0
+av==11.0.0
+
+# ================================
+# Data Processing
+# ================================
+pandas==2.1.3
+polars==0.19.19
+
+# ================================
+# API Client & Webhooks
+# ================================
+requests==2.31.0
+aiohttp==3.9.1
+websockets==12.0
+
+# ================================
+# Validation & Serialization
+# ================================
+marshmallow==3.20.1
+attrs==23.1.0
+
+# ================================
+# Testing
+# ================================
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+httpx==0.25.2
+faker==20.1.0
+factory-boy==3.3.0
+
+# ================================
+# Development Tools
+# ================================
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+isort==5.12.0
+autopep8==2.0.4
+pylint==3.0.3
+
+# ================================
+# Documentation
+# ================================
+mkdocs==1.5.3
+mkdocs-material==9.5.2

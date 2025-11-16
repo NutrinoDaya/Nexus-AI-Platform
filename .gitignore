@@ -1,0 +1,304 @@
+# NexusAIPlatform Analytics Platform - GitHub Ready
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+.conda/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+coverage/
+.coverage.*
+tests/
+test/
+__tests__/
+*.test.js
+*.test.ts
+*.test.tsx
+*.spec.js
+*.spec.ts
+*.spec.tsx
+test-results/
+e2e-results/
+
+# Type Checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+dist/
+dist-ssr/
+*.local
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Data and Models
+data/
+!data/.gitkeep
+!data/samples/
+models/weights/
+models/checkpoints/
+models/onnx/
+models/tensorrt/
+models/saved/
+!models/.gitkeep
+!models/examples/
+mlruns/
+mlartifacts/
+wandb/
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Media Files (large files that shouldn't be in repo)
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+*.wmv
+*.webm
+*.m4v
+
+# Large Image Files (keep small examples/samples)
+uploads/
+cache/
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tiff
+*.webp
+!assets/**
+!docs/**
+!frontend/public/**
+!examples/**
+
+# ML/AI Specific
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.onnx
+*.trt
+*.engine
+checkpoints/
+experiments/
+
+# MLflow
+mlflow.db
+mlruns/
+
+# Big Data
+spark-warehouse/
+metastore_db/
+derby.log
+
+# DVC (Data Version Control)
+.dvc/
+*.dvc
+
+# Monitoring Data
+prometheus_data/
+grafana_data/
+metrics/
+
+# Build Artifacts
+*.tar.gz
+*.zip
+*.7z
+*.rar
+
+# System Files
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage Reports
+.nyc_output
+
+# Serverless
+.serverless/
+
+# FuseBox
+.fusebox/
+
+# DynamoDB Local
+.dynamodb/
+
+# TernJS
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Vite
+dist-ssr
+*.local
+
+# Rollup
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.test
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+
+# Production builds that shouldn't be committed
+/build
+/production
+
+# Local development database
+local.db
+dev.db
+
+# Certificate files (should be managed securely)
+*.pem
+*.key
+*.crt
+*.csr
+
+# Application specific ignores
+config/local.yaml
+config/development.yaml
+config/secrets.yaml
+
+# Keep essential directories but ignore contents
+logs/.gitkeep
+data/.gitkeep
+models/.gitkeep
+cache/.gitkeep
+uploads/.gitkeep

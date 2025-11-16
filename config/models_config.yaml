@@ -1,0 +1,234 @@
+# NexusAI Platform - Models Configuration
+# Plugin-based model configuration with support for multiple frameworks
+
+models:
+  # Object Detection Models
+  yolov8n_detection:
+    name: "YOLOv8 Nano - Object Detection"
+    description: "Ultra-fast object detection for real-time applications"
+    task: "object_detection"
+    framework: "onnx"
+    version: "8.0.0"
+    path: "models/detection/yolov8n.onnx"
+    config:
+      input_size: [640, 640]
+      confidence_threshold: 0.25
+      iou_threshold: 0.45
+      max_detections: 100
+      classes: 80  # COCO classes
+      preprocessing:
+        normalize: true
+        mean: [0.0, 0.0, 0.0]
+        std: [255.0, 255.0, 255.0]
+      device: "cuda"
+      batch_size: 16
+    performance:
+      expected_fps: 60
+      max_latency_ms: 25
+    access_level: "public"
+    
+  yolov8s_detection:
+    name: "YOLOv8 Small - Object Detection"
+    description: "Balanced speed and accuracy for general use"
+    task: "object_detection"
+    framework: "onnx"
+    version: "8.0.0"
+    path: "models/detection/yolov8s.onnx"
+    config:
+      input_size: [640, 640]
+      confidence_threshold: 0.3
+      iou_threshold: 0.45
+      max_detections: 100
+      classes: 80
+      preprocessing:
+        normalize: true
+        mean: [0.0, 0.0, 0.0]
+        std: [255.0, 255.0, 255.0]
+      device: "cuda"
+      batch_size: 12
+    performance:
+      expected_fps: 45
+      max_latency_ms: 35
+    access_level: "authenticated"
+    
+  yolov8m_detection:
+    name: "YOLOv8 Medium - Object Detection"
+    description: "High accuracy object detection"
+    task: "object_detection"
+    framework: "tensorrt"
+    version: "8.0.0"
+    path: "models/detection/yolov8m.trt"
+    config:
+      input_size: [640, 640]
+      confidence_threshold: 0.35
+      iou_threshold: 0.45
+      max_detections: 100
+      classes: 80
+      preprocessing:
+        normalize: true
+        mean: [0.0, 0.0, 0.0]
+        std: [255.0, 255.0, 255.0]
+      device: "cuda"
+      batch_size: 8
+      precision: "fp16"
+    performance:
+      expected_fps: 30
+      max_latency_ms: 45
+    access_level: "premium"
+    
+  # Instance Segmentation Models
+  sam_segmentation:
+    name: "Segment Anything Model (SAM)"
+    description: "State-of-the-art instance segmentation"
+    task: "instance_segmentation"
+    framework: "onnx"
+    version: "1.0.0"
+    path: "models/segmentation/sam_vit_h.onnx"
+    config:
+      input_size: [1024, 1024]
+      confidence_threshold: 0.5
+      mask_threshold: 0.5
+      points_per_side: 32
+      preprocessing:
+        normalize: true
+        mean: [123.675, 116.28, 103.53]
+        std: [58.395, 57.12, 57.375]
+      device: "cuda"
+      batch_size: 4
+    performance:
+      expected_fps: 15
+      max_latency_ms: 60
+    access_level: "premium"
+    
+  # Image Classification Models
+  resnet50_classification:
+    name: "ResNet50 - Image Classification"
+    description: "ImageNet pre-trained classification"
+    task: "image_classification"
+    framework: "onnx"
+    version: "1.0.0"
+    path: "models/classification/resnet50.onnx"
+    config:
+      input_size: [224, 224]
+      top_k: 5
+      preprocessing:
+        normalize: true
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]
+      device: "cuda"
+      batch_size: 32
+      classes: 1000  # ImageNet classes
+    performance:
+      expected_fps: 100
+      max_latency_ms: 10
+    access_level: "public"
+    
+  # Pose Estimation Models
+  yolov8n_pose:
+    name: "YOLOv8 Nano - Pose Estimation"
+    description: "Real-time human pose estimation"
+    task: "pose_estimation"
+    framework: "onnx"
+    version: "8.0.0"
+    path: "models/pose/yolov8n-pose.onnx"
+    config:
+      input_size: [640, 640]
+      confidence_threshold: 0.3
+      iou_threshold: 0.45
+      keypoints: 17  # COCO keypoints
+      preprocessing:
+        normalize: true
+        mean: [0.0, 0.0, 0.0]
+        std: [255.0, 255.0, 255.0]
+      device: "cuda"
+      batch_size: 8
+    performance:
+      expected_fps: 40
+      max_latency_ms: 30
+    access_level: "authenticated"
+    
+  # Facial Recognition Models
+  facenet_recognition:
+    name: "FaceNet - Facial Recognition"
+    description: "Face embedding and recognition"
+    task: "facial_recognition"
+    framework: "onnx"
+    version: "1.0.0"
+    path: "models/face/facenet.onnx"
+    config:
+      input_size: [160, 160]
+      embedding_size: 512
+      threshold: 0.6
+      preprocessing:
+        normalize: true
+        mean: [127.5, 127.5, 127.5]
+        std: [128.0, 128.0, 128.0]
+      device: "cuda"
+      batch_size: 16
+    performance:
+      expected_fps: 80
+      max_latency_ms: 15
+    access_level: "premium"
+    
+  # OCR Models
+  easyocr_text_detection:
+    name: "EasyOCR - Text Detection & Recognition"
+    description: "Optical character recognition"
+    task: "ocr"
+    framework: "pytorch"
+    version: "1.0.0"
+    path: "models/ocr/easyocr"
+    config:
+      languages: ["en"]
+      input_size: [640, 640]
+      confidence_threshold: 0.4
+      preprocessing:
+        normalize: true
+      device: "cuda"
+      batch_size: 8
+    performance:
+      expected_fps: 20
+      max_latency_ms: 50
+    access_level: "authenticated"
+
+# Model Registry Settings
+registry:
+  mlflow:
+    enabled: true
+    tracking_uri: "http://mlflow:5000"
+    experiment_name: "nexusai-models"
+    artifact_location: "s3://nexusai-models/mlflow"
+  versioning:
+    enabled: true
+    auto_version: true
+    max_versions: 5
+  validation:
+    enabled: true
+    test_on_upload: true
+    benchmark_dataset: "coco_val2017"
+    
+# Model Optimization Settings
+optimization:
+  auto_optimize: false
+  strategies:
+    onnx:
+      enabled: true
+      opset_version: 16
+      optimization_level: 99
+      quantization: false
+    tensorrt:
+      enabled: true
+      fp16_mode: true
+      int8_mode: false
+      max_workspace_size: 4294967296  # 4GB
+      max_batch_size: 32
+    openvino:
+      enabled: false
+      precision: "FP16"
+      
+# Plugin Settings
+plugins:
+  custom_models_path: "/app/plugins/models"
+  auto_register: true
+  validation_required: true
+  sandbox_mode: false

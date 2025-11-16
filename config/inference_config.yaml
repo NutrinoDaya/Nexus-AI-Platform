@@ -1,0 +1,151 @@
+# NexusAI Platform - Inference Configuration
+# Advanced inference settings with performance optimization
+
+inference:
+  # General Settings
+  default_mode: "synchronous"
+  max_queue_size: 256
+  queue_timeout: 30
+  result_ttl: 3600  # seconds
+  
+  # Synchronous Inference
+  synchronous:
+    enabled: true
+    timeout: 60
+    max_batch_size: 16
+    batch_timeout: 0.1  # seconds
+    retry_attempts: 3
+    retry_delay: 1
+    
+  # Asynchronous Inference
+  asynchronous:
+    enabled: true
+    task_timeout: 300
+    result_expiry: 3600
+    callback_enabled: true
+    webhook_timeout: 10
+    
+  # Batch Inference
+  batch:
+    enabled: true
+    max_items: 1000
+    processing_timeout: 3600
+    chunk_size: 100
+    parallel_workers: 4
+    priority_queue: true
+    
+  # Streaming Inference
+  streaming:
+    enabled: true
+    buffer_size: 30  # frames
+    frame_skip: 0
+    backpressure_strategy: "drop_oldest"
+    output_format: "json"
+    websocket_timeout: 300
+    
+  # Performance Settings
+  performance:
+    # CPU Settings
+    cpu:
+      num_threads: 8
+      num_inter_threads: 2
+      num_intra_threads: 4
+      
+    # GPU Settings
+    gpu:
+      device_id: 0
+      memory_fraction: 0.8
+      allow_growth: true
+      multi_gpu: false
+      gpu_ids: [0]
+      
+    # Optimization
+    optimization:
+      enable_profiling: false
+      cache_models: true
+      warmup_iterations: 10
+      mixed_precision: true
+      graph_optimization: true
+      
+    # Memory Management
+    memory:
+      max_memory_mb: 8192
+      cache_size_mb: 2048
+      clear_cache_interval: 300  # seconds
+      
+  # Pre-processing Pipeline
+  preprocessing:
+    resize_method: "bilinear"
+    color_space: "RGB"
+    normalize: true
+    augmentation:
+      enabled: false
+      random_flip: false
+      random_crop: false
+      random_brightness: false
+      
+  # Post-processing Pipeline
+  postprocessing:
+    nms:
+      enabled: true
+      method: "hard"  # hard, soft, weighted
+      iou_threshold: 0.45
+    confidence_filter:
+      enabled: true
+      min_confidence: 0.25
+    class_filter:
+      enabled: false
+      allowed_classes: []
+    result_format: "json"
+    include_visualization: false
+    annotation_style:
+      bbox_color: [0, 255, 0]
+      bbox_thickness: 2
+      label_font_scale: 0.5
+      
+  # Tracking Settings (for video/streaming)
+  tracking:
+    enabled: true
+    algorithm: "deepsort"  # deepsort, bytetrack, sort
+    max_age: 30
+    min_hits: 3
+    iou_threshold: 0.3
+    feature_extraction:
+      enabled: true
+      model: "osnet_x1_0"
+      device: "cuda"
+      
+  # Result Storage
+  storage:
+    save_inputs: true
+    save_outputs: true
+    save_visualizations: false
+    compression: true
+    retention_days: 30
+    
+  # Logging & Metrics
+  logging:
+    log_predictions: true
+    log_performance: true
+    log_errors: true
+    detailed_metrics: true
+    metrics_interval: 60  # seconds
+    
+  # Quality Control
+  quality:
+    min_image_size: [32, 32]
+    max_image_size: [4096, 4096]
+    supported_formats: ["jpg", "jpeg", "png", "bmp", "webp"]
+    max_file_size_mb: 50
+    validate_input: true
+    
+  # Fallback & Error Handling
+  error_handling:
+    fallback_model: null
+    return_error_details: true
+    graceful_degradation: true
+    circuit_breaker:
+      enabled: true
+      failure_threshold: 5
+      timeout: 60
+      half_open_timeout: 30

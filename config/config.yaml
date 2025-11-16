@@ -1,0 +1,244 @@
+# NexusAI Platform Configuration
+# This file contains all system-wide configuration settings.
+# Values can be overridden via environment variables.
+
+# System Information
+system:
+  name: "NexusAI"
+  version: "1.0.0"
+  description: "Advanced AI Platform for Multi-Model Inference"
+  environment: "development"  # development, staging, production
+  debug: true
+  timezone: "UTC"
+
+# API Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  reload: true  # Only for development
+  log_level: "info"  # debug, info, warning, error, critical
+  cors_origins:
+    - "http://localhost:5173"
+    - "http://localhost:3000"
+    - "http://127.0.0.1:5173"
+  
+# Database Configuration (MongoDB)
+mongodb:
+  url: "mongodb://localhost:27017"
+  database: "nexusai"
+  max_pool_size: 100
+  min_pool_size: 10
+  server_selection_timeout_ms: 5000
+  
+# Redis Configuration
+redis:
+  url: "redis://localhost:6379/0"
+  max_connections: 50
+  socket_timeout: 5
+  socket_connect_timeout: 5
+  decode_responses: true
+
+# JWT Authentication
+auth:
+  secret_key: "your-secret-key-change-in-production-use-openssl-rand-hex-32"
+  algorithm: "HS256"
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 7
+  
+# Model Inference Configuration
+inference:
+  # Default settings
+  default_model: "yolov8n"
+  max_batch_size: 32
+  timeout_seconds: 300
+  
+  # GPU Configuration
+  use_gpu: true
+  gpu_devices: [0]  # List of GPU device IDs to use
+  gpu_memory_fraction: 0.8  # Max GPU memory to allocate
+  
+  # Model loading
+  model_cache_size: 10  # Number of models to keep in memory
+  preload_models: []  # Models to load on startup
+  
+  # Supported frameworks
+  frameworks:
+    - pytorch
+    - onnx
+    - tensorrt
+  
+  # Image preprocessing
+  max_image_size: 4096  # Max width/height in pixels
+  supported_formats:
+    - jpg
+    - jpeg
+    - png
+    - bmp
+    - webp
+
+# Camera Streaming Configuration
+streaming:
+  # MediaMTX server
+  mediamtx_endpoint: "localhost:8554"
+  mediamtx_api_endpoint: "http://localhost:9997"
+  
+  # RTSP settings
+  protocol: "rtsp"  # rtsp, rtmp, hls
+  stream_quality: "high"  # low, medium, high, ultra
+  max_concurrent_streams: 50
+  
+  # Recording
+  enable_recording: false
+  recording_path: "/data/recordings"
+  recording_retention_days: 7
+  
+  # Snapshots
+  snapshot_interval_seconds: 5
+  snapshot_retention_count: 100
+
+# Storage Configuration (MinIO/S3)
+storage:
+  backend: "minio"  # minio, s3, local
+  
+  # MinIO settings
+  endpoint: "localhost:9000"
+  access_key: "minioadmin"
+  secret_key: "minioadmin"
+  secure: false  # Use HTTPS
+  
+  # Buckets
+  buckets:
+    models: "nexusai-models"
+    inference: "nexusai-inference"
+    cameras: "nexusai-cameras"
+    uploads: "nexusai-uploads"
+  
+  # File management
+  retention_days: 30
+  max_file_size_mb: 500
+  auto_cleanup: true
+
+# Celery Task Queue Configuration
+celery:
+  broker_url: "redis://localhost:6379/1"
+  result_backend: "redis://localhost:6379/2"
+  
+  # Task settings
+  task_serializer: "json"
+  result_serializer: "json"
+  accept_content: ["json"]
+  timezone: "UTC"
+  enable_utc: true
+  
+  # Performance
+  worker_concurrency: 4
+  worker_prefetch_multiplier: 4
+  task_acks_late: true
+  
+  # Timeouts
+  task_soft_time_limit: 300
+  task_time_limit: 600
+  
+  # Result expiry
+  result_expires: 3600  # 1 hour
+
+# Logging Configuration
+logging:
+  version: 1
+  disable_existing_loggers: false
+  
+  formatters:
+    default:
+      format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+      datefmt: "%Y-%m-%d %H:%M:%S"
+    detailed:
+      format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
+      datefmt: "%Y-%m-%d %H:%M:%S"
+  
+  handlers:
+    console:
+      class: "logging.StreamHandler"
+      level: "INFO"
+      formatter: "default"
+      stream: "ext://sys.stdout"
+    
+    file:
+      class: "logging.handlers.RotatingFileHandler"
+      level: "INFO"
+      formatter: "detailed"
+      filename: "logs/nexusai.log"
+      maxBytes: 10485760  # 10MB
+      backupCount: 5
+    
+    error_file:
+      class: "logging.handlers.RotatingFileHandler"
+      level: "ERROR"
+      formatter: "detailed"
+      filename: "logs/nexusai_error.log"
+      maxBytes: 10485760  # 10MB
+      backupCount: 5
+  
+  loggers:
+    nexusai:
+      level: "INFO"
+      handlers: ["console", "file", "error_file"]
+      propagate: false
+    
+    uvicorn:
+      level: "INFO"
+      handlers: ["console"]
+      propagate: false
+    
+    sqlalchemy:
+      level: "WARNING"
+      handlers: ["console"]
+      propagate: false
+
+# Performance Monitoring
+monitoring:
+  enable_metrics: true
+  metrics_port: 9090
+  
+  # Prometheus
+  prometheus:
+    enabled: true
+    path: "/metrics"
+  
+  # Health checks
+  health_check_interval: 60
+  
+# Rate Limiting
+rate_limiting:
+  enabled: true
+  default_limit: "100/minute"
+  
+  # Per-endpoint limits
+  endpoints:
+    "/api/inference/predict": "10/minute"
+    "/api/auth/login": "5/minute"
+    "/api/auth/register": "3/minute"
+
+# Feature Flags
+features:
+  enable_model_upload: true
+  enable_camera_streaming: true
+  enable_batch_inference: true
+  enable_websocket: true
+  enable_webhooks: false
+  enable_api_docs: true
+  
+# Default System Settings
+default_settings:
+  app_name: "NexusAI"
+  max_upload_size: 524288000  # 500MB in bytes
+  timezone: "UTC"
+  default_model: "yolov8n"
+  inference_timeout: 300
+  max_batch_size: 32
+  storage_backend: "minio"
+  retention_days: 30
+  max_storage_gb: 1000
+  stream_protocol: "rtsp"
+  stream_quality: "high"
+  max_concurrent_streams: 50

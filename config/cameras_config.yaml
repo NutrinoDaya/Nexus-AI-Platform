@@ -1,0 +1,143 @@
+# NexusAI Platform - Camera Configuration
+# Live camera streaming and management based on VMS system
+
+cameras:
+  # Global Settings
+  global:
+    max_cameras: 100
+    default_fps: 30
+    buffer_size: 60  # frames
+    reconnect_interval: 5  # seconds
+    max_reconnect_attempts: 10
+    health_check_interval: 30  # seconds
+    
+  # Stream Settings
+  streaming:
+    protocols:
+      rtsp:
+        enabled: true
+        transport: "tcp"  # tcp, udp, http
+        timeout: 5000  # ms
+        buffer_size: 1024000  # bytes
+      webrtc:
+        enabled: true
+        stun_servers:
+          - "stun:stun.l.google.com:19302"
+        turn_servers: []
+      http:
+        enabled: true
+        chunk_size: 4096
+        
+  # Processing Settings
+  processing:
+    frame_skip: 0  # process every nth frame (0 = all frames)
+    resize_before_inference: true
+    target_resolution: [640, 480]
+    quality: 85  # JPEG quality
+    format: "jpg"
+    
+  # Recording Settings
+  recording:
+    enabled: true
+    path: "/data/recordings"
+    format: "mp4"
+    codec: "h264"
+    segment_duration: 300  # seconds (5 minutes)
+    retention_days: 7
+    record_on_event: true
+    continuous_recording: false
+    
+  # Motion Detection
+  motion_detection:
+    enabled: true
+    sensitivity: 50  # 0-100
+    min_area: 500  # pixels
+    threshold: 25
+    dilate_iterations: 2
+    
+  # Event Detection
+  events:
+    enabled: true
+    types:
+      - motion
+      - object_detected
+      - person_detected
+      - vehicle_detected
+      - face_detected
+      - anomaly
+    notification:
+      enabled: true
+      methods: ["webhook", "email"]
+      throttle_seconds: 60
+      
+  # Analytics
+  analytics:
+    enabled: true
+    inference_interval: 1  # seconds
+    batch_frames: false
+    models:
+      - yolov8n_detection
+      - yolov8n_pose
+    store_results: true
+    
+# Camera Presets (examples)
+presets:
+  hikvision_default:
+    type: "rtsp"
+    url_template: "rtsp://{username}:{password}@{host}:{port}/Streaming/Channels/{channel}"
+    default_port: 554
+    default_channel: 101
+    manufacturer: "Hikvision"
+    
+  dahua_default:
+    type: "rtsp"
+    url_template: "rtsp://{username}:{password}@{host}:{port}/cam/realmonitor?channel={channel}&subtype=0"
+    default_port: 554
+    default_channel: 1
+    manufacturer: "Dahua"
+    
+  axis_default:
+    type: "rtsp"
+    url_template: "rtsp://{username}:{password}@{host}/axis-media/media.amp"
+    default_port: 554
+    manufacturer: "Axis"
+    
+  onvif_generic:
+    type: "rtsp"
+    url_template: "rtsp://{username}:{password}@{host}:{port}/onvif1"
+    default_port: 554
+    manufacturer: "Generic ONVIF"
+    
+  webcam_usb:
+    type: "usb"
+    device_index: 0
+    manufacturer: "Generic USB"
+    
+# Camera Groups
+groups:
+  enabled: true
+  default_group: "uncategorized"
+  
+# Thumbnail Settings
+thumbnails:
+  enabled: true
+  interval: 10  # seconds
+  resolution: [320, 240]
+  quality: 70
+  storage_path: "/data/thumbnails"
+  
+# Health Monitoring
+health:
+  check_interval: 30  # seconds
+  metrics:
+    - connection_status
+    - frame_rate
+    - dropped_frames
+    - latency
+    - bandwidth
+  alerts:
+    enabled: true
+    conditions:
+      low_fps: 15
+      high_latency_ms: 1000
+      connection_lost: true

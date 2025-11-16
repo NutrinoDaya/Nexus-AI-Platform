@@ -1,0 +1,146 @@
+###############################################
+# MediaMTX Configuration
+# 
+# This file configures the MediaMTX server for
+# RTSP/RTMP/HLS streaming from IP cameras
+###############################################
+
+# General settings
+logLevel: info
+logDestinations: [stdout]
+logFile: logs/mediamtx.log
+
+# API server (for programmatic control)
+api: yes
+apiAddress: :9997
+
+# Metrics
+metrics: yes
+metricsAddress: :9998
+
+# RTSP server
+rtsp: yes
+rtspAddress: :8554
+protocols: [tcp, udp]
+encryption: no
+
+# RTMP server
+rtmp: yes
+rtmpAddress: :1935
+rtmpEncryption: no
+
+# HLS server
+hls: yes
+hlsAddress: :8888
+hlsEncryption: no
+hlsServerKey: server.key
+hlsServerCert: server.crt
+hlsAllowOrigin: '*'
+hlsTrustedProxies: []
+hlsDirectory: ''
+hlsAlwaysRemux: no
+hlsVariant: lowLatency
+hlsSegmentCount: 7
+hlsSegmentDuration: 1s
+hlsPartDuration: 200ms
+hlsSegmentMaxSize: 50M
+
+# WebRTC server
+webrtc: yes
+webrtcAddress: :8889
+webrtcEncryption: no
+webrtcServerKey: server.key
+webrtcServerCert: server.crt
+webrtcAllowOrigin: '*'
+webrtcTrustedProxies: []
+webrtcICEServers2: []
+webrtcICEHostNAT1To1IPs: []
+webrtcICEUDPMuxAddress: :8189
+webrtcICETCPMuxAddress: :8189
+
+# Recording
+record: no
+recordPath: ./recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+recordFormat: fmp4
+recordPartDuration: 1s
+recordSegmentDuration: 3600s
+recordDeleteAfter: 24h
+
+# Path defaults
+# These settings are applied to all paths
+pathDefaults:
+  # Source settings
+  source: publisher
+  sourceFingerprint: ''
+  sourceOnDemand: no
+  sourceOnDemandStartTimeout: 10s
+  sourceOnDemandCloseAfter: 10s
+  
+  # Maximum number of readers
+  maxReaders: 0
+  
+  # SRT-specific settings
+  srtReadPassphrase: ''
+  
+  # Record
+  record: no
+  
+  # Publisher settings
+  publishUser: ''
+  publishPass: ''
+  publishIPs: []
+  
+  # Reader settings
+  readUser: ''
+  readPass: ''
+  readIPs: []
+  
+  # Run external commands
+  runOnInit: ''
+  runOnInitRestart: no
+  runOnDemand: ''
+  runOnDemandRestart: no
+  runOnDemandStartTimeout: 10s
+  runOnDemandCloseAfter: 10s
+  runOnReady: ''
+  runOnReadyRestart: no
+  runOnRead: ''
+  runOnReadRestart: no
+  runOnUnread: ''
+  runOnUnreadRestart: no
+  runOnRecordSegmentCreate: ''
+  runOnRecordSegmentComplete: ''
+
+# Path configurations
+# You can define specific paths for different camera streams
+paths:
+  # Default path - allows all streams
+  all_others:
+    # Allow publishing and reading from all sources
+  
+  # Example: Camera 1
+  # camera1:
+  #   source: rtsp://username:password@192.168.1.100:554/stream
+  #   sourceProtocol: tcp
+  #   sourceOnDemand: yes
+  #   runOnReady: curl -X POST http://localhost:8000/api/cameras/webhooks/stream-ready
+  
+  # Example: Camera 2 with authentication
+  # camera2:
+  #   source: rtsp://admin:admin123@192.168.1.101:554/h264
+  #   publishUser: nexusai
+  #   publishPass: secret123
+  #   readUser: viewer
+  #   readPass: viewer123
+  
+  # Example: Camera 3 with recording
+  # camera3:
+  #   source: rtsp://192.168.1.102:554/stream
+  #   record: yes
+  #   recordPath: ./recordings/camera3/%Y-%m-%d_%H-%M-%S
+  
+  # Test stream (useful for development)
+  test:
+    source: publisher
+    publishUser: ''
+    publishPass: ''
