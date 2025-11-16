@@ -29,6 +29,43 @@ Nexus AI Platform provides a complete solution for computer vision applications 
 - Camera management interface
 - Model inference visualization with canvas rendering
 
+## Screenshots
+
+### Login Interface
+<img src="assets/Un4titled.jpg" alt="Login Page" width="600">
+
+*Secure authentication with modern dark theme*
+
+### Dashboard Overview  
+<img src="assets/Untitl42ed.png" alt="Main Dashboard" width="600">
+
+*Real-time system monitoring and analytics*
+
+### Camera Management
+<img src="assets/hyt4Untitled.png" alt="Camera Interface" width="600">
+
+*Live camera feeds and streaming controls*
+
+### Model Inference
+<img src="assets/Unsdatitled.png" alt="Model Management" width="600">
+
+*AI model configuration and inference results*
+
+### System Settings
+<img src="assets/Untitledd.jpg" alt="Settings Panel" width="600">
+
+*Comprehensive system configuration*
+
+### Detection Results
+<img src="assets/Untitgrled.jpg" alt="Detection Output" width="600">
+
+*Object detection with real-time visualization*
+
+### Analysis Dashboard
+<img src="assets/Untitlefdsd.jpg" alt="Analytics View" width="600">
+
+*Advanced analytics and performance metrics*
+
 ## Quick Start
 
 ### Prerequisites

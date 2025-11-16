@@ -85,7 +85,7 @@ lerna-debug.log*
 dist/
 dist-ssr/
 *.local
-
+assets/
 # Environment Variables
 .env
 .env.local
